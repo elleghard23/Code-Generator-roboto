@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Generatore Codici Robot</title>
+    <style>
+        /* CSS minimale per la pagina, puoi migliorarlo */
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .robot-card { border: 1px solid #ccc; padding: 15px; margin: 10px; display: inline-block; width: 250px; cursor: pointer; transition: transform 0.2s; }
+        .robot-card:hover { transform: scale(1.05); background-color: #f0f0f0; }
+        .robot-card img { width: 100%; height: auto; border-radius: 5px; }
+        #code-display { font-size: 2.5em; color: #333; margin-top: 30px; padding: 20px; border: 2px solid #4CAF50; display: none; background-color: #e8ffe8; word-break: break-all; }
+        button { padding: 10px 20px; font-size: 1em; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <div id="selection-view">
+        <h1>Seleziona il Robot per Generare il Codice</h1>
+        {% for robot in robots %}
+        <div class="robot-card" data-prefix="{{ robot.id }}" onclick="showCodeGenerator('{{ robot.id }}', '{{ robot.name }}')">
+            <img src="{{ url_for('static', filename='images/' + robot.img) }}" alt="{{ robot.name }}">
+            <h3>{{ robot.name }} ({{ robot.id }})</h3>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="generation-view" style="display: none;">
+        <h2 id="robot-title"></h2>
+        <button onclick="generateCode()">Genera Nuovo Codice</button>
+        <div id="code-display"></div>
+        <button onclick="resetView()">Torna alla Selezione</button>
+    </div>
+
+    <script>
+        let selectedPrefix = '';
+
+        function showCodeGenerator(prefix, name) {
+            selectedPrefix = prefix;
+            document.getElementById('robot-title').innerText = `Generazione Codice per: ${name} (${prefix})`;
+            document.getElementById('selection-view').style.display = 'none';
+            document.getElementById('generation-view').style.display = 'block';
+            document.getElementById('code-display').style.display = 'none'; // Nascondi codice vecchio
+            document.getElementById('code-display').innerText = ''; // Pulisci codice vecchio
+        }
+
+        function resetView() {
+            document.getElementById('selection-view').style.display = 'block';
+            document.getElementById('generation-view').style.display = 'none';
+            document.getElementById('code-display').style.display = 'none';
+        }
+
+        async function generateCode() {
+            document.getElementById('code-display').innerText = "Generazione in corso...";
+            document.getElementById('code-display').style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/generate_code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prefix: selectedPrefix })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Errore nella risposta del server');
+                }
+
+                const result = await response.json();
+                
+                // Il codice compare su tutta la pagina
+                document.getElementById('code-display').innerText = result.code; 
+
+            } catch (error) {
+                console.error('Errore:', error);
+                document.getElementById('code-display').innerText = `Errore: ${error.message}. Riprova.`;
+                document.getElementById('code-display').style.color = 'red';
+            }
+        }
+    </script>
+</body>
+</html>
