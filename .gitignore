@@ -1,0 +1,5 @@
+# Ignora l'ambiente virtuale
+venv/
+
+# Ignora i file di database locali
+robot_counter.db
