@@ -4,80 +4,141 @@
     <meta charset="UTF-8">
     <title>Generatore Codici Robot</title>
     <style>
-        /* CSS minimale per la pagina, puoi migliorarlo */
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .robot-card { border: 1px solid #ccc; padding: 15px; margin: 10px; display: inline-block; width: 250px; cursor: pointer; transition: transform 0.2s; }
-        .robot-card:hover { transform: scale(1.05); background-color: #f0f0f0; }
-        .robot-card img { width: 100%; height: auto; border-radius: 5px; }
-        #code-display { font-size: 2.5em; color: #333; margin-top: 30px; padding: 20px; border: 2px solid #4CAF50; display: none; background-color: #e8ffe8; word-break: break-all; }
-        button { padding: 10px 20px; font-size: 1em; cursor: pointer; margin-top: 20px; }
+        /* Stile semplificato */
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
+        .container { max-width: 600px; margin: auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+        .robot-button { 
+            padding: 15px 30px; 
+            margin: 10px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            border: 1px solid #007bff; 
+            border-radius: 4px; 
+            background-color: #f8f9fa; 
+            color: #007bff; 
+            transition: background-color 0.2s;
+        }
+        .robot-button:hover { 
+            background-color: #007bff; 
+            color: white; 
+        }
+        #code-display { 
+            font-size: 2em; 
+            color: #28a745; 
+            margin-top: 30px; 
+            padding: 20px; 
+            border: 3px solid #28a745; 
+            display: none; 
+            background-color: #e9ffe9; 
+            word-break: break-all;
+            user-select: all; 
+        }
+        button { 
+            padding: 12px 25px; 
+            font-size: 1.1em; 
+            cursor: pointer; 
+            margin: 10px; 
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff; 
+            color: white; 
+            transition: background-color 0.2s;
+        }
+        button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
+    <div class="container">
+        
+        <div id="selection-view">
+            <h1>Seleziona il Robot per Generare il Codice</h1>
+            
+            <button class="robot-button" data-robot-type="ROB-A" onclick="showGenerator('ROB-A', 'Robot Assemblaggio A')">
+                Robot Assemblaggio A (ROB-A)
+            </button>
+            
+            <button class="robot-button" data-robot-type="ROB-B" onclick="showGenerator('ROB-B', 'Robot Saldatura B')">
+                Robot Saldatura B (ROB-B)
+            </button>
+            
+            </div>
 
-    <div id="selection-view">
-        <h1>Seleziona il Robot per Generare il Codice</h1>
-        {% for robot in robots %}
-        <div class="robot-card" data-prefix="{{ robot.id }}" onclick="showCodeGenerator('{{ robot.id }}', '{{ robot.name }}')">
-            <img src="{{ url_for('static', filename='images/' + robot.img) }}" alt="{{ robot.name }}">
-            <h3>{{ robot.name }} ({{ robot.id }})</h3>
+        <div id="generation-view" style="display: none;">
+            <h2 id="robot-title"></h2>
+            
+            <button onclick="generateCode()">Genera Nuovo Codice</button>
+            
+            <div id="code-display" title="Clicca per copiare">Clicca 'Genera Nuovo Codice'</div>
+            
+            <button onclick="resetView()">Torna alla Selezione</button>
         </div>
-        {% endfor %}
-    </div>
-
-    <div id="generation-view" style="display: none;">
-        <h2 id="robot-title"></h2>
-        <button onclick="generateCode()">Genera Nuovo Codice</button>
-        <div id="code-display"></div>
-        <button onclick="resetView()">Torna alla Selezione</button>
     </div>
 
     <script>
-        let selectedPrefix = '';
+        let selectedRobotType = '';
 
-        function showCodeGenerator(prefix, name) {
-            selectedPrefix = prefix;
-            document.getElementById('robot-title').innerText = `Generazione Codice per: ${name} (${prefix})`;
+        function showGenerator(type, name) {
+            selectedRobotType = type;
+            document.getElementById('robot-title').innerText = `Generazione Codice per: ${name} (${type})`;
             document.getElementById('selection-view').style.display = 'none';
             document.getElementById('generation-view').style.display = 'block';
-            document.getElementById('code-display').style.display = 'none'; // Nascondi codice vecchio
-            document.getElementById('code-display').innerText = ''; // Pulisci codice vecchio
+            document.getElementById('code-display').style.display = 'none';
+            document.getElementById('code-display').innerText = ''; 
         }
 
         function resetView() {
             document.getElementById('selection-view').style.display = 'block';
             document.getElementById('generation-view').style.display = 'none';
-            document.getElementById('code-display').style.display = 'none';
         }
 
         async function generateCode() {
-            document.getElementById('code-display').innerText = "Generazione in corso...";
-            document.getElementById('code-display').style.display = 'block';
-            
+            const display = document.getElementById('code-display');
+            display.innerText = "Generazione in corso...";
+            display.style.display = 'block';
+            display.style.color = '#ffc107'; 
+            display.style.borderColor = '#ffc107';
+
             try {
-                const response = await fetch('/api/generate_code', {
+                const response = await fetch('/generate_code', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ prefix: selectedPrefix })
+                    body: JSON.stringify({ robot_type: selectedRobotType })
                 });
-
-                if (!response.ok) {
-                    throw new Error('Errore nella risposta del server');
-                }
 
                 const result = await response.json();
                 
-                // Il codice compare su tutta la pagina
-                document.getElementById('code-display').innerText = result.code; 
+                if (!response.ok) {
+                    throw new Error(result.error || 'Errore nella risposta del server');
+                }
+                
+                // Successo: mostra il codice
+                display.innerText = result.code; 
+                display.style.color = '#28a745';
+                display.style.borderColor = '#28a745';
 
             } catch (error) {
                 console.error('Errore:', error);
-                document.getElementById('code-display').innerText = `Errore: ${error.message}. Riprova.`;
-                document.getElementById('code-display').style.color = 'red';
+                display.innerText = `ERRORE: ${error.message}`;
+                display.style.color = '#dc3545'; 
+                display.style.borderColor = '#dc3545';
             }
         }
+        
+        // Funzione per copiare il codice al click
+        document.getElementById('code-display').addEventListener('click', function() {
+            const code = this.innerText;
+            if (code && !code.startsWith('Generazione') && !code.startsWith('ERRORE')) {
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = this.innerText;
+                    this.innerText = 'Copiato!';
+                    setTimeout(() => { this.innerText = originalText; }, 1000);
+                }).catch(err => {
+                    console.error('Errore nella copia:', err);
+                });
+            }
+        });
     </script>
 </body>
 </html>
