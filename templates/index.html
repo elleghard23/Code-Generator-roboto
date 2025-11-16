@@ -45,19 +45,26 @@
             transition: background-color 0.2s;
         }
         button:hover { background-color: #0056b3; }
+     .credits {
+            text-align: center;
+            color: #999; /* Un grigio chiaro */
+            font-size: 0.9em;
+            margin-top: 30px;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         
         <div id="selection-view">
             <h1>Select the robot and generate file name</h1>
             
-            <button class="robot-button" data-robot-type="ENG" onclick="showGenerator('ENG')">
+            <button class="robot-button" data-robot-type="ENG" onclick="showGenerator('ENG','')">
                 Robot Engineering  (ENG)
             </button>
             
-            <button class="robot-button" data-robot-type="INF" onclick="showGenerator('INF')">
+            <button class="robot-button" data-robot-type="INF" onclick="showGenerator('INF','')">
                 Robot Infantry B (INF)
             </button>
             
@@ -72,6 +79,7 @@
             
             <button onclick="resetView()">Back to selection</button>
         </div>
+        <div class="credits">Powered by elleghard(Francesca)</div>
     </div>
 
     <script>
@@ -93,7 +101,7 @@
 
         async function generateCode() {
             const display = document.getElementById('code-display');
-            display.innerText = "Generazione in corso...";
+            display.innerText = "Generating...";
             display.style.display = 'block';
             display.style.color = '#ffc107'; 
             display.style.borderColor = '#ffc107';
@@ -129,10 +137,10 @@
         // Funzione per copiare il codice al click
         document.getElementById('code-display').addEventListener('click', function() {
             const code = this.innerText;
-            if (code && !code.startsWith('Generazione') && !code.startsWith('ERRORE')) {
+            if (code && !code.startsWith('Generating') && !code.startsWith('ERRORE')) {
                 navigator.clipboard.writeText(code).then(() => {
                     const originalText = this.innerText;
-                    this.innerText = 'Copiato!';
+                    this.innerText = 'Copied!';
                     setTimeout(() => { this.innerText = originalText; }, 1000);
                 }).catch(err => {
                     console.error('Errore nella copia:', err);
