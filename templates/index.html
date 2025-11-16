@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Generatore Codici Robot</title>
+    <title>Files name generator</title>
     <style>
         /* Stile semplificato */
         body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f4; }
@@ -51,14 +51,14 @@
     <div class="container">
         
         <div id="selection-view">
-            <h1>Seleziona il Robot per Generare il Codice</h1>
+            <h1>Select the robot and generate file name</h1>
             
-            <button class="robot-button" data-robot-type="ROB-A" onclick="showGenerator('ROB-A', 'Robot Assemblaggio A')">
-                Robot Assemblaggio A (ROB-A)
+            <button class="robot-button" data-robot-type="ENG" onclick="showGenerator('ENG')">
+                Robot Engineering  (ENG)
             </button>
             
-            <button class="robot-button" data-robot-type="ROB-B" onclick="showGenerator('ROB-B', 'Robot Saldatura B')">
-                Robot Saldatura B (ROB-B)
+            <button class="robot-button" data-robot-type="INF" onclick="showGenerator('INF')">
+                Robot Infantry B (INF)
             </button>
             
             </div>
@@ -66,11 +66,11 @@
         <div id="generation-view" style="display: none;">
             <h2 id="robot-title"></h2>
             
-            <button onclick="generateCode()">Genera Nuovo Codice</button>
+            <button onclick="generateCode()">Generate New file name</button>
             
-            <div id="code-display" title="Clicca per copiare">Clicca 'Genera Nuovo Codice'</div>
+            <div id="code-display" title="Click to copy">Click 'Generate New file name'</div>
             
-            <button onclick="resetView()">Torna alla Selezione</button>
+            <button onclick="resetView()">Back to selection</button>
         </div>
     </div>
 
@@ -79,7 +79,7 @@
 
         function showGenerator(type, name) {
             selectedRobotType = type;
-            document.getElementById('robot-title').innerText = `Generazione Codice per: ${name} (${type})`;
+            document.getElementById('robot-title').innerText = `File generator for: ${name} (${type})`;
             document.getElementById('selection-view').style.display = 'none';
             document.getElementById('generation-view').style.display = 'block';
             document.getElementById('code-display').style.display = 'none';
